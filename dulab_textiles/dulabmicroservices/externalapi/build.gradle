@@ -1,0 +1,30 @@
+plugins {
+    id 'org.springframework.boot' version '2.2.4.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'java'
+}
+
+group = 'com.dulab'
+version = '1.0.0'
+sourceCompatibility = '11'
+
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation('org.springframework.boot:spring-boot-starter-security')
+    implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.2.4.RELEASE')
+    implementation('org.apache.poi:poi:4.1.0')
+    implementation('org.apache.poi:poi-ooxml:4.1.0')
+    implementation('org.apache.poi:poi-scratchpad:4.1.0')
+    compile ('org.apache.httpcomponents:httpclient:4.5.10')
+    implementation project(':common')
+    runtimeOnly 'mysql:mysql-connector-java'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+}
+
+test {
+    useJUnitPlatform()
+}

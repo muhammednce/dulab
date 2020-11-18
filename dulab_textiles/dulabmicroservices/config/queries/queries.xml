@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<queries>
+
+	<query name="USER_INFO">
+		SELECT u.user_name,
+               u.user_code,
+               u.mail_id,
+               u.group_code,
+               u.is_company_user AS companyUser
+        FROM   user_t u
+        WHERE  u.user_code = ?
+	</query>
+
+    <query name="USER_LOGIN">
+		SELECT u.user_name,
+               u.user_code,
+               u.mail_id,
+               u.group_code,
+               u.is_company_user as companyUser
+        FROM   user_t u
+        WHERE  u.user_code =  ? AND u.login_pwd = ?
+    </query>
+
+	<query name="SELECT_SCREENS">
+		SELECT ug.module_no AS moduleNo,
+               ug.screen_no AS screenNo,
+               module_name  AS moduleName,
+               screen_name  AS screenName,
+               module_icon  AS moduleIcon,
+               screen_icon  AS screenIcon,
+               router_link  AS routerLink,
+               sub_menu     AS subMenu,
+               CASE
+                 WHEN sub_menu_name = '' THEN NULL
+                 ELSE sub_menu_name
+               END          AS subMenuName
+        FROM   screen_t s
+               INNER JOIN user_group_privilege_t ug
+                       ON ug.module_no = s.module_no
+                          AND ug.screen_no = s.screen_no
+               INNER JOIN user_t u
+                       ON u.group_code = ug.group_code
+        WHERE  u.user_code = ?
+	</query>
+
+
+    <query name="SELECT_USER_GROUP_PRIVILEGE">
+        SELECT group_code,
+               s.module_no,
+               s.screen_no,
+               s.module_name,
+               s.screen_name,
+               is_create AS createAccess,
+               is_edit   AS editAccess,
+               is_delete AS deleteAccess,
+               is_view   AS viewAccess
+        FROM   screen_t s
+               INNER JOIN user_group_privilege_t ugp
+                       ON ugp.module_no = s.module_no
+                          AND ugp.screen_no = s.screen_no
+        WHERE  ugp.group_code = ?
+    </query>
+  <query name="SELECT_USERS">
+        SELECT user_code,
+               user_name,
+               group_code
+        FROM   user_t
+    </query>
+
+
+
+    <query name="SELECT_SUBMENU_NAMES">
+        SELECT DISTINCT (sub_menu_name)
+        FROM   screen_t scr
+               INNER JOIN report_entity_t rep
+                       ON scr.module_name = rep.module_name
+        WHERE  rep.report_id = ?
+               AND scr.sub_menu_name IS NOT NULL
+    </query>
+
+    <query name="SELECT_ROLE_ACCESS">
+        SELECT module_no AS moduleID,
+               screen_no AS screenID,
+               is_create AS `create`,
+               is_edit   AS `edit`,
+               is_view   AS `view`,
+               is_delete AS `delete`
+        FROM   user_group_privilege_t
+        WHERE  group_code = ?
+    </query>
+
+
+
+
+
+
+    <query name="INSERT_USER_LOGIN_LOG">
+        INSERT INTO user_logs_t (
+            user_code,
+            last_login_time,
+            last_login_ip,
+            is_logged_in,
+            logout_time )
+        VALUES(
+            ?,
+            ?,
+            ?,
+            ?,
+            ? )
+        on duplicate KEY UPDATE
+           last_login_time = VALUES(last_login_time),
+           last_login_ip = VALUES (last_login_ip),
+           is_logged_in = VALUES (is_logged_in)
+    </query>
+    <query name="UPDATE_USER_LOGOUT_LOG">
+        UPDATE user_logs_t
+        SET    is_logged_in = :is_logged_in,
+               logout_time = :logout_time
+        WHERE  user_code = :user_code
+    </query>
+</queries>
